@@ -1,0 +1,7 @@
+<h1>New Game</h1>
+
+<%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
+  <%= f.label "Enter your name:" %>
+  <%= text_field_tag 'name' %>
+  <%= f.submit "Create Player" %>
+<% end %>
