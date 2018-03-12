@@ -25,8 +25,14 @@ class GamesController < ApplicationController
   # POST /games.json
   def create
     @game = Game.new(game_params)
-    @game.player = Player.new(name: params[:name], game_id: @game.id)
-    # @player = @game.players.new(name: @game.playerName, game_id: @game.id)
+    @game.word = generate_word
+    if params[:player_id] == nil
+      @player = Player.new(name: params[:name])
+      @player.save
+      @game.player_id = @player.id
+    else
+      @game.player_id = params[:player_id]
+    end
     respond_to do |format|
       if @game.save
         format.html { redirect_to @game, notice: 'Game was successfully created.' }
@@ -71,5 +77,20 @@ class GamesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def game_params
 
+    end
+
+    def generate_word
+      wordList = []
+      File.open("/usr/share/dict/words").each do |line|
+        line = line.strip
+        if line.strip.length > 7 or line.strip.length < 3
+          next
+        elsif line[0].match(/^[A-Z]/)
+          next
+        else
+          wordList << line.strip
+        end
+      end
+      return wordList[rand(0...wordList.count)]
     end
 end
