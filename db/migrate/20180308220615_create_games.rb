@@ -2,8 +2,8 @@ class CreateGames < ActiveRecord::Migration[5.1]
   def change
     create_table :games do |t|
       t.string :word
-      t.string :currentGuess
-      t.string :currentGuesses
+      t.string :current_guess
+      t.string :current_guesses
 
 
       t.timestamps

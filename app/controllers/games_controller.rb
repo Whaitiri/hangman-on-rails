@@ -1,5 +1,6 @@
 class GamesController < ApplicationController
   before_action :set_game, only: [:show, :edit, :update, :destroy]
+  before_action :set_player, only: [:create, :update]
 
   # GET /games
   # GET /games.json
@@ -15,6 +16,7 @@ class GamesController < ApplicationController
   # GET /games/new
   def new
     @game = Game.new
+    @players_array = Player.all.collect{ |player| [player.name, player.id] }
   end
 
   # GET /games/1/edit
@@ -25,13 +27,13 @@ class GamesController < ApplicationController
   # POST /games.json
   def create
     @game = Game.new(game_params)
-    @game.word = generate_word
-    if params[:player_id] == nil
+    @game.new_game
+    if @player.nil?
       @player = Player.new(name: params[:name])
       @player.save
-      @game.player_id = @player.id
+      @game.player = @player
     else
-      @game.player_id = params[:player_id]
+      @game.player = @player
     end
     respond_to do |format|
       if @game.save
@@ -47,9 +49,15 @@ class GamesController < ApplicationController
   # PATCH/PUT /games/1
   # PATCH/PUT /games/1.json
   def update
+    if @game.process_input(params[:commit])
+      return_notice = "Your guess was incorrect..."
+    else
+      return_notice = "Your guess was correct!"
+    end
+
     respond_to do |format|
       if @game.update(game_params)
-        format.html { redirect_to @game, notice: 'Game was successfully updated.' }
+        format.html { redirect_to @game, notice: return_notice  }
         format.json { render :show, status: :ok, location: @game }
       else
         format.html { render :edit }
@@ -74,23 +82,14 @@ class GamesController < ApplicationController
       @game = Game.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def game_params
-
+    def set_player
+      if params[:player_id]
+        @player = Player.find(params[:player_id])
+      end
     end
 
-    def generate_word
-      wordList = []
-      File.open("/usr/share/dict/words").each do |line|
-        line = line.strip
-        if line.strip.length > 7 or line.strip.length < 3
-          next
-        elsif line[0].match(/^[A-Z]/)
-          next
-        else
-          wordList << line.strip
-        end
-      end
-      return wordList[rand(0...wordList.count)]
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def game_params
+      params.require(:game).permit(:player_id, :name)
     end
 end

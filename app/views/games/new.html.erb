@@ -1,14 +1,24 @@
 <p id="notice"><%= notice %></p>
 <h1>New Game</h1>
 
-<%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
-  <%= f.label "Enter name of new player" %>
-  <%= text_field_tag 'name' %>
-  <%= f.submit "Start Game" %>
-<% end %>
-
-<%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
-  <%= f.label "Select an existing player" %>
-  <%= select_tag(:player_id, options_for_select(Player.all.collect{ |player| [player.name, player.id] }), include_blank: true) %>
-  <%= f.submit "Start Game" %>
-<% end %>
+<div style="display: flex; width: 85%">
+  <div style="float: left; padding-right: 10px; flex: 1 1 auto">
+    <%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
+      <%= f.label "Enter name of new player" %>
+      <%= text_field_tag 'name' %>
+      <%= f.hidden_field :id %>
+      <%= f.submit "Start Game" %>
+    <% end %>
+  </div>
+  <div style="flex: 1 1 auto">
+     or
+  </div>
+  <div style="float: right; padding-left: 10px; flex: 1 1 auto">
+    <%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
+      <%= f.label "Select an existing player" %>
+      <%= select_tag(:player_id, options_for_select(@players_array), include_blank: true) %>
+      <%= f.hidden_field :id %>
+      <%= f.submit "Start Game" %>
+    <% end %>
+  </div>
+</div>

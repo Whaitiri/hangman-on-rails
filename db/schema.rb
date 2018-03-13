@@ -14,8 +14,8 @@ ActiveRecord::Schema.define(version: 20180308220615) do
 
   create_table "games", force: :cascade do |t|
     t.string "word"
-    t.string "currentGuess"
-    t.string "currentGuesses"
+    t.string "current_guess"
+    t.string "current_guesses"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "player_id"

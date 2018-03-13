@@ -1,5 +1,28 @@
 <p id="notice"><%= notice %></p>
-<%= @game.word %>
+<%= @game.current_guess.scan(/.{1}/).join(' ')%>
+<%= form_for @game, url: {action: "show"} do |f| %>
+<%= f.hidden_field :id %>
+  <% Game.all_letters.split('').each do |l| %>
+    <% if @game.remaining_letters.include? l %>
+      <%= f.submit l.upcase %>
+    <% elsif @game.word.include? l %>
+      <%= f.submit l.upcase, disabled: true, style: 'background-color: green; opacity: 0.3; border-radius: 4px' %>
+    <% else %>
+      <%= f.submit l.upcase, disabled: true, style: 'background-color: red; opacity: 0.3; border-radius: 4px' %>
+    <% end %>
+  <% end %>
+<% end %>
+
+
+<% if false %>
+  Here I want to:
+    - remove the @game.current_guesses from Game.all_letters - DONE!
+    - create a button for each remaining letter - DONE!
+    - wait for input, add input letter to current_guesses - DONE!
+    - run finished word/no guesses left/turn change checks
+    - repeat this screen if checks are all good
+    - otherwise end game/etc.
+<% end %>
 
 <%= link_to 'Edit', edit_game_path(@game) %> |
 <%= link_to 'Back', games_path %>
