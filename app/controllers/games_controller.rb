@@ -1,5 +1,6 @@
 class GamesController < ApplicationController
   before_action :set_game, only: [:show, :edit, :update, :destroy]
+  before_action :new_game_new_player_check, only: [:create]
   before_action :set_player, only: [:create, :update]
 
   # GET /games
@@ -26,8 +27,7 @@ class GamesController < ApplicationController
   # POST /games
   # POST /games.json
   def create
-    @game = Game.new(game_params)
-    @game.new_game
+    @game = Game.new_game
     if @player.nil?
       @player = Player.new(name: params[:name])
       @player.save
@@ -55,6 +55,18 @@ class GamesController < ApplicationController
       return_notice = "Your guess was correct!"
     end
 
+    if @game.word == @game.current_guess
+      return_notice += " You won!"
+    end
+
+    if @game.guesses_left <= 0
+      return_notice += " You ran out of guesses."
+    end
+
+    # here we want to run checks, and pass it:
+    # - to the end if word guessed or guessed exhausted
+    # - back to show otherwise.
+
     respond_to do |format|
       if @game.update(game_params)
         format.html { redirect_to @game, notice: return_notice  }
@@ -79,17 +91,27 @@ class GamesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_game
-      @game = Game.find(params[:id])
+        @game = Game.find(params[:id])
+    end
+
+    def new_game_new_player_check
+      if params[:player_id] == "" && params[:game][:new_player] == "false"
+        redirect_back fallback_location: new_game_url, notice: "Please select an existing player"
+      elsif params[:name] == "" && params[:game][:new_player]
+        redirect_back fallback_location: new_game_url, notice: "Please enter a name"
+      end
     end
 
     def set_player
-      if params[:player_id]
+      unless params[:player_id].nil?
         @player = Player.find(params[:player_id])
       end
     end
 
+
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def game_params
-      params.require(:game).permit(:player_id, :name)
+      params.require(:game).permit(:id, :player_id, :name)
     end
 end

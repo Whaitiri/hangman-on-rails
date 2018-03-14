@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 20180308220615) do
     t.string "word"
     t.string "current_guess"
     t.string "current_guesses"
+    t.integer "guesses_left"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "player_id"

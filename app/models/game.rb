@@ -1,12 +1,17 @@
 class Game < ActiveRecord::Base
+  ALL_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('')
   # has_many :players
   # has_one :player
   belongs_to :player
+  validates :player_id, presence: true
 
-  def new_game
-    self.word = Game.generate_word
-    self.current_guess = (self.word.split('').map {'_'}).join
-    self.current_guesses = ""
+  def self.new_game
+    game = Game.new
+    game.word = generate_word
+    game.current_guess = (game.word.split('').map {'_'}).join
+    game.current_guesses = ""
+    game.guesses_left = 7
+    return game
   end
 
   def self.generate_word
@@ -24,12 +29,8 @@ class Game < ActiveRecord::Base
     return wordList[rand(0...wordList.count)]
   end
 
-  def self.all_letters
-    'abcdefghijklmnopqrstuvwxyz'
-  end
-
   def remaining_letters
-    return (Game.all_letters.split('') - self.current_guesses.split('')).join
+    return (ALL_LETTERS - self.current_guesses.split('')).join
   end
 
   def process_input(input)
@@ -47,10 +48,23 @@ class Game < ActiveRecord::Base
     end
 
     if guess_fail >= i
+      self.guesses_left -= 1
       return true
     else
       return false
     end
+  end
+
+  def summarize_game
+    # puts "Summary for Game #{self.id}:"
+    # puts "The word was #{self.word}"
+    # puts "#{self.player.name}'s guesses:"
+    # player.playerGuesses.each do |guess|
+    #   print "#{guess} "
+    # end
+    # puts ""
+    # puts "#{player.playerName}'s guess was #{player.playerWord.join} with #{player.playerGuess} guesses remaining"
+    # puts ""
   end
 
 end

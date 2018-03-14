@@ -7,6 +7,7 @@
       <%= f.label "Enter name of new player" %>
       <%= text_field_tag 'name' %>
       <%= f.hidden_field :id %>
+      <%= f.hidden_field :new_player, :value => true %>
       <%= f.submit "Start Game" %>
     <% end %>
   </div>
@@ -16,8 +17,9 @@
   <div style="float: right; padding-left: 10px; flex: 1 1 auto">
     <%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
       <%= f.label "Select an existing player" %>
-      <%= select_tag(:player_id, options_for_select(@players_array), include_blank: true) %>
+      <%= select_tag(:player_id, options_for_select(@players_array), {:include_blank => 'Select a player'}) %>
       <%= f.hidden_field :id %>
+      <%= f.hidden_field :new_player, :value => false %>
       <%= f.submit "Start Game" %>
     <% end %>
   </div>
