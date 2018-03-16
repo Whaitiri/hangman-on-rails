@@ -1,7 +1,7 @@
 class GamesController < ApplicationController
-  before_action :set_game, only: [:show, :edit, :update, :destroy]
-  before_action :new_game_new_player_check, only: [:create]
-  before_action :set_player, only: [:create, :update]
+  before_action :set_game, only: [:show, :edit, :update, :destroy, :postgame]
+  before_action :set_player, only: [:create, :update, :postgame]
+  before_action :run_end_turn_checker, only: [:show]
 
   # GET /games
   # GET /games.json
@@ -17,6 +17,7 @@ class GamesController < ApplicationController
   # GET /games/new
   def new
     @game = Game.new
+    @player = Player.new
     @players_array = Player.all.collect{ |player| [player.name, player.id] }
   end
 
@@ -27,6 +28,7 @@ class GamesController < ApplicationController
   # POST /games
   # POST /games.json
   def create
+    @players_array = Player.all.collect{ |player| [player.name, player.id] }
     @game = Game.new_game
     if @player.nil?
       @player = Player.new(name: params[:name])
@@ -35,47 +37,39 @@ class GamesController < ApplicationController
     else
       @game.player = @player
     end
-    respond_to do |format|
-      if @game.save
-        format.html { redirect_to @game, notice: 'Game was successfully created.' }
-        format.json { render :show, status: :created, location: @game }
-      else
-        format.html { render :new }
-        format.json { render json: @game.errors, status: :unprocessable_entity }
-      end
+
+    if @game.save
+      redirect_to @game, notice: 'Game was successfully created.'
+    else
+      render :new
     end
   end
 
   # PATCH/PUT /games/1
   # PATCH/PUT /games/1.json
   def update
-    if @game.process_input(params[:commit])
+    if @game.input_check(params[:commit])
       return_notice = "Your guess was incorrect..."
     else
       return_notice = "Your guess was correct!"
     end
 
-    if @game.word == @game.current_guess
-      return_notice += " You won!"
-    end
-
-    if @game.guesses_left <= 0
-      return_notice += " You ran out of guesses."
-    end
-
-    # here we want to run checks, and pass it:
-    # - to the end if word guessed or guessed exhausted
-    # - back to show otherwise.
-
-    respond_to do |format|
-      if @game.update(game_params)
-        format.html { redirect_to @game, notice: return_notice  }
-        format.json { render :show, status: :ok, location: @game }
+    if run_end_turn_checker
+      @game.save
+      return
+    elsif @game.update(game_params)
+      if @game.save
+        redirect_to @game, notice: return_notice
+        return
       else
-        format.html { render :edit }
-        format.json { render json: @game.errors, status: :unprocessable_entity }
+        render :edit
+        return
       end
     end
+  end
+
+  def postgame
+
   end
 
   # DELETE /games/1
@@ -94,21 +88,25 @@ class GamesController < ApplicationController
         @game = Game.find(params[:id])
     end
 
-    def new_game_new_player_check
-      if params[:player_id] == "" && params[:game][:new_player] == "false"
-        redirect_back fallback_location: new_game_url, notice: "Please select an existing player"
-      elsif params[:name] == "" && params[:game][:new_player]
-        redirect_back fallback_location: new_game_url, notice: "Please enter a name"
-      end
-    end
-
     def set_player
-      unless params[:player_id].nil?
+      unless params[:player_id].nil? || params[:player_id] == ""
         @player = Player.find(params[:player_id])
       end
     end
 
-
+    def run_end_turn_checker
+      if @game.end_turn_check == "win"
+        flash[:notice] = "you won"
+        redirect_to(action: "postgame", id: @game)
+        return true
+      elsif @game.end_turn_check == "loss"
+        flash[:notice] = "you lost"
+        redirect_to(action: "postgame", id: @game)
+        return true
+      else
+        return false
+      end
+    end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def game_params

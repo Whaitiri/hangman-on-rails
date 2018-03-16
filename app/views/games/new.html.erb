@@ -1,7 +1,21 @@
 <p id="notice"><%= notice %></p>
 <h1>New Game</h1>
 
-<div style="display: flex; width: 85%">
+<% if @player.errors.any? %>
+  <div id="error_explanation">
+    <h4>
+      <%= pluralize(@player.errors.count, "error") %> prohibited
+      this player from being saved:
+    </h4>
+    <ul>
+      <% @player.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<div style="display: flex; width: 85%; margin: 0 auto">
   <div style="float: left; padding-right: 10px; flex: 1 1 auto">
     <%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
       <%= f.label "Enter name of new player" %>
@@ -17,10 +31,12 @@
   <div style="float: right; padding-left: 10px; flex: 1 1 auto">
     <%= form_for @game, url: {action: "create"}, html: {class: 'game_form'} do |f| %>
       <%= f.label "Select an existing player" %>
-      <%= select_tag(:player_id, options_for_select(@players_array), {:include_blank => 'Select a player'}) %>
+      <%= select_tag(:player_id, options_for_select(@players_array)) %>
       <%= f.hidden_field :id %>
       <%= f.hidden_field :new_player, :value => false %>
       <%= f.submit "Start Game" %>
     <% end %>
   </div>
 </div>
+
+<%= link_to 'Back', games_path %>

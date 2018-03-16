@@ -33,7 +33,7 @@ class Game < ActiveRecord::Base
     return (ALL_LETTERS - self.current_guesses.split('')).join
   end
 
-  def process_input(input)
+  def input_check(input)
     input = input.downcase
     self.current_guesses += input
     i = 0
@@ -55,16 +55,15 @@ class Game < ActiveRecord::Base
     end
   end
 
-  def summarize_game
-    # puts "Summary for Game #{self.id}:"
-    # puts "The word was #{self.word}"
-    # puts "#{self.player.name}'s guesses:"
-    # player.playerGuesses.each do |guess|
-    #   print "#{guess} "
-    # end
-    # puts ""
-    # puts "#{player.playerName}'s guess was #{player.playerWord.join} with #{player.playerGuess} guesses remaining"
-    # puts ""
+  def end_turn_check
+    if self.word == self.current_guess
+      return "win"
+    elsif self.guesses_left <= 0
+      return "loss"
+    else
+      return "ok"
+    end
+
   end
 
 end

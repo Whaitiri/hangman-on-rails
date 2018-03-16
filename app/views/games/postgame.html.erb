@@ -1,0 +1,6 @@
+<p id="notice"><%= flash[:notice] %></p>
+
+<%= tag.p("The word was #{@game.word}")%>
+<%= tag.p("Your final guess was: #{@game.current_guess.split('').join(' ')}")%>
+
+<%= link_to 'Back', games_path %>

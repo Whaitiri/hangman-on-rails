@@ -5,9 +5,6 @@
   <%= f.hidden_field :id %>
   <% Game::ALL_LETTERS.in_groups_of(7, false).each do |letters| %>
     <% letters.each do |l| %>
-      <%
-      # dont think i need remaining_letters
-      %>
       <% if @game.remaining_letters.include? l %>
         <%= f.submit l.upcase %>
       <% elsif @game.word.include? l %>
