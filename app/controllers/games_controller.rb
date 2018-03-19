@@ -1,5 +1,6 @@
 class GamesController < ApplicationController
   before_action :set_game, only: [:show, :edit, :update, :destroy, :postgame]
+  before_action :set_for_new, only: [:new, :newmulti]
   before_action :set_player, only: [:create, :update, :postgame]
   before_action :run_end_turn_checker, only: [:show]
 
@@ -16,9 +17,9 @@ class GamesController < ApplicationController
 
   # GET /games/new
   def new
-    @game = Game.new
-    @player = Player.new
-    @players_array = Player.all.collect{ |player| [player.name, player.id] }
+  end
+
+  def newmulti
   end
 
   # GET /games/1/edit
@@ -69,7 +70,6 @@ class GamesController < ApplicationController
   end
 
   def postgame
-
   end
 
   # DELETE /games/1
@@ -85,7 +85,13 @@ class GamesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_game
-        @game = Game.find(params[:id])
+      @game = Game.find(params[:id])
+    end
+
+    def set_for_new
+      @game = Game.new
+      @player = Player.new
+      @players_array = Player.all.collect{ |player| [player.name, player.id] }
     end
 
     def set_player

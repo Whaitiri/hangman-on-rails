@@ -1,8 +1,9 @@
 class Game < ActiveRecord::Base
   ALL_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('')
-  # has_many :players
-  # has_one :player
   belongs_to :player
+  accepts_nested_attributes_for :player
+  has_many :matches, inverse_of: 'game1', :class_name => 'Match', :foreign_key => 'game1_id'
+  has_many :matches, inverse_of: 'game2', :class_name => 'Match', :foreign_key => 'game2_id'
   validates :player_id, presence: true
 
   def self.new_game
